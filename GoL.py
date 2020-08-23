@@ -2,81 +2,86 @@ import pygame
 import numpy as np
 import time
 
-pygame.init()
+# Constants
+WIDTH, HEIGHT = 500, 500
+BG_COLOUR = 30, 30, 30
+X_COL, Y_COL = 25, 25
 
-# Create screen
-width, height = 500, 500
-screen = pygame.display.set_mode((height, width))
 
-# Fill screen with bg colour
-bg = 30, 30, 30
-screen.fill(bg)
+if __name__ == '__main__':
 
-# Set row and column number
-x_col, y_col = 25, 25
-dim_width = width / x_col
-dim_height = height / y_col
+    pygame.init()
 
-# Initialize game matrix
-gameMatrix = np.zeros((x_col, y_col))
-gameMatrix[5, 3] = 1
-gameMatrix[5, 4] = 1
-gameMatrix[6, 4] = 1
-gameMatrix[6, 5] = 1
-gameMatrix[7, 4] = 1
-pauseExec = True
+    # Create screen
+    screen = pygame.display.set_mode((HEIGHT, WIDTH))
 
-while True:
+    # Fill screen with bg colour
+    screen.fill(BG_COLOUR)
 
-    newGameState = np.copy(gameMatrix)
+    # Set row and column number
+    dim_width = WIDTH / X_COL
+    dim_height = HEIGHT / Y_COL
 
-    screen.fill(bg)
+    # Initialize game matrix
+    gameMatrix = np.zeros((X_COL, Y_COL))
+    gameMatrix[5, 3] = 1
+    gameMatrix[5, 4] = 1
+    gameMatrix[6, 4] = 1
+    gameMatrix[6, 5] = 1
+    gameMatrix[7, 4] = 1
+    pauseExec = True
 
-    events = pygame.event.get()
+    while True:
 
-    for e in events:
+        newGameState = np.copy(gameMatrix)
 
-        if e.type == pygame.KEYDOWN:
-            pauseExec = not pauseExec
+        screen.fill(BG_COLOUR)
 
-        mouseClick = pygame.mouse.get_pressed()
+        events = pygame.event.get()
 
-        if sum(mouseClick) != 0:
-            posX, posY = pygame.mouse.get_pos()
-            celX, celY = int(np.floor(posX / dim_width)), int(np.floor(posY / dim_height))
-            newGameState[celX, celY] = not newGameState[celX, celY]
+        for e in events:
 
-    for y in range(0, y_col):
-        for x in range(0, x_col):
+            if e.type == pygame.KEYDOWN:
+                pauseExec = not pauseExec
 
-            if not pauseExec:
+            mouseClick = pygame.mouse.get_pressed()
 
-                n_neigh = gameMatrix[(x - 1) % x_col, (y - 1) % y_col] + \
-                          gameMatrix[x % x_col,       (y - 1) % y_col] + \
-                          gameMatrix[(x + 1) % x_col, (y - 1) % y_col] + \
-                          gameMatrix[(x - 1) % x_col, y % y_col] + \
-                          gameMatrix[(x + 1) % x_col, y % y_col] + \
-                          gameMatrix[(x - 1) % x_col, (y + 1) % y_col] + \
-                          gameMatrix[x % x_col,       (y + 1) % y_col] + \
-                          gameMatrix[(x + 1) % x_col, (y + 1) % y_col]
+            if sum(mouseClick) != 0:
+                posX, posY = pygame.mouse.get_pos()
+                celX, celY = int(np.floor(posX / dim_width)), int(np.floor(posY / dim_height))
+                newGameState[celX, celY] = not newGameState[celX, celY]
 
-                if gameMatrix[x, y] == 0 and n_neigh == 3:
-                    newGameState[x, y] = 1
-                elif gameMatrix[x, y] == 1 and (n_neigh < 2 or n_neigh > 3):
-                    newGameState[x, y] = 0
+        for y in range(0, Y_COL):
+            for x in range(0, X_COL):
 
-            polygon = [(x * dim_width, y * dim_height),
-                       ((x + 1) * dim_width, y * dim_height),
-                       ((x + 1) * dim_width, (y + 1) * dim_height),
-                       (x * dim_width, (y + 1) * dim_height)]
+                if not pauseExec:
 
-            if newGameState[x, y] == 0:
-                pygame.draw.polygon(screen, (128, 128, 128), polygon, 1)
-            else:
-                pygame.draw.polygon(screen, (255, 255, 255), polygon, 0)
+                    n_neigh = gameMatrix[(x - 1) % X_COL, (y - 1) % Y_COL] + \
+                              gameMatrix[x % X_COL, (y - 1) % Y_COL] + \
+                              gameMatrix[(x + 1) % X_COL, (y - 1) % Y_COL] + \
+                              gameMatrix[(x - 1) % X_COL, y % Y_COL] + \
+                              gameMatrix[(x + 1) % X_COL, y % Y_COL] + \
+                              gameMatrix[(x - 1) % X_COL, (y + 1) % Y_COL] + \
+                              gameMatrix[x % X_COL, (y + 1) % Y_COL] + \
+                              gameMatrix[(x + 1) % X_COL, (y + 1) % Y_COL]
 
-    gameMatrix = np.copy(newGameState)
+                    if gameMatrix[x, y] == 0 and n_neigh == 3:
+                        newGameState[x, y] = 1
+                    elif gameMatrix[x, y] == 1 and (n_neigh < 2 or n_neigh > 3):
+                        newGameState[x, y] = 0
 
-    pygame.display.flip()
+                polygon = [(x * dim_width, y * dim_height),
+                           ((x + 1) * dim_width, y * dim_height),
+                           ((x + 1) * dim_width, (y + 1) * dim_height),
+                           (x * dim_width, (y + 1) * dim_height)]
 
-    time.sleep(0.1)
+                if newGameState[x, y] == 0:
+                    pygame.draw.polygon(screen, (128, 128, 128), polygon, 1)
+                else:
+                    pygame.draw.polygon(screen, (255, 255, 255), polygon, 0)
+
+        gameMatrix = np.copy(newGameState)
+
+        pygame.display.flip()
+
+        time.sleep(0.1)
